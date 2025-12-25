@@ -2,3 +2,8 @@ pandas
 rapidfuzz
 geopy
 python-dateutil
+fastapi
+uvicorn
+httpx
+python-dotenv
+pydantic
