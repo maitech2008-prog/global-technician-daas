@@ -1,9 +1,10 @@
+fastapi
+uvicorn
+python-dotenv
 pandas
 rapidfuzz
 geopy
 python-dateutil
-fastapi
-uvicorn
-httpx
-python-dotenv
 pydantic
+httpx
+supabase
