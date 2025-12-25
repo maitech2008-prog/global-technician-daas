@@ -5,13 +5,12 @@ from api.models import Technician
 from api.auth import verify_api_key
 from fastapi import FastAPI
 
-app = FastAPI()
+app = FastAPI(title="Global Technician DaaS API", version="1.0")
 
 @app.get("/")
 def root():
     return {"message": "FastAPI is working!"}
 
-app = FastAPI(title="Global Technician DaaS API", version="1.0")
 
 @app.get("/technicians", response_model=List[Technician])
 def get_technicians(
