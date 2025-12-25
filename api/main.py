@@ -1,16 +1,20 @@
-from fastapi import FastAPI, Query, Depends
+from fastapi import FastAPI, Query, Depends, HTTPException, Header
 from typing import List
 from api.db import supabase
 from api.models import Technician
-from api.auth import verify_api_key
-from fastapi import FastAPI
 
+# ----- API Key Verification -----
+def verify_api_key(x_api_key: str = Header(...)):
+    if x_api_key != "YOUR_API_KEY_HERE":  # replace with your actual key
+        raise HTTPException(status_code=401, detail="Invalid API Key")
+    return True
+
+# ----- FastAPI App -----
 app = FastAPI(title="Global Technician DaaS API", version="1.0")
 
 @app.get("/")
 def root():
     return {"message": "FastAPI is working!"}
-
 
 @app.get("/technicians", response_model=List[Technician])
 def get_technicians(
