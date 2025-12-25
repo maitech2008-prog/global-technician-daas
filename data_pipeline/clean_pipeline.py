@@ -1,24 +1,24 @@
 import pandas as pd
 import uuid
 import hashlib
-from rapidfuzz import fuzz
 from geopy.geocoders import Nominatim
 from datetime import datetime
 import time
 
+# ---------- CONFIG ----------
+SALT = "CHANGE_THIS_SECRET"
 geolocator = Nominatim(user_agent="global-technician-daas")
-
-SALT = "change_this_secret_salt"
 
 SERVICE_MAP = {
     "ac repair": "HVAC",
     "air conditioner": "HVAC",
+    "electric": "Electrician",
     "wireman": "Electrician",
-    "electric work": "Electrician",
-    "plumbing": "Plumber",
-    "carpentry": "Carpenter"
+    "plumb": "Plumber",
+    "carpenter": "Carpenter"
 }
 
+# ---------- HELPERS ----------
 def normalize_service(service):
     if not isinstance(service, str):
         return "General Maintenance"
@@ -47,41 +47,35 @@ def geo_enrich(address):
         pass
     return None, None
 
-def confidence_score(row):
+def calculate_confidence(record):
     score = 0.0
-    if row["latitude"] and row["longitude"]:
+    if record["latitude"] and record["longitude"]:
         score += 0.4
-    if row["service_category"]:
+    if record["service_category"]:
         score += 0.2
-    if row["skills"]:
+    if record["skills"]:
         score += 0.2
-    if row["contact_hash"]:
+    if record["contact_hash"]:
         score += 0.2
     return round(score, 2)
 
-def clean_data(input_file, output_file):
-    df = pd.read_csv(input_file)
-
-    cleaned = []
-    seen = []
+# ---------- MAIN PIPELINE ----------
+def run_pipeline(input_csv, output_json):
+    df = pd.read_csv(input_csv)
+    results = []
+    seen_hashes = set()
 
     for _, r in df.iterrows():
-        phone_hash = hash_phone(str(r.get("phone", "")))
+        phone = str(r.get("phone", ""))
+        phone_hash = hash_phone(phone)
 
-        duplicate = False
-        for s in seen:
-            if s == phone_hash:
-                duplicate = True
-                break
-
-        if duplicate:
+        if phone_hash in seen_hashes:
             continue
+        seen_hashes.add(phone_hash)
 
-        seen.append(phone_hash)
-
-        address = f"{r.get('address','')}, {r.get('city','')}, {r.get('country','')}"
-        lat, lng = geo_enrich(address)
-        time.sleep(1)  # be polite to OSM
+        address_full = f"{r.get('address','')}, {r.get('city','')}, {r.get('country','')}"
+        lat, lng = geo_enrich(address_full)
+        time.sleep(1)
 
         record = {
             "technician_id": str(uuid.uuid4()),
@@ -93,7 +87,7 @@ def clean_data(input_file, output_file):
             "address": r.get("address"),
             "latitude": lat,
             "longitude": lng,
-            "contact_masked": mask_phone(str(r.get("phone",""))),
+            "contact_masked": mask_phone(phone),
             "contact_hash": phone_hash,
             "languages": ["en"],
             "availability": "ON_DEMAND",
@@ -104,10 +98,10 @@ def clean_data(input_file, output_file):
             "updated_at": datetime.utcnow().isoformat()
         }
 
-        record["confidence_score"] = confidence_score(record)
-        cleaned.append(record)
+        record["confidence_score"] = calculate_confidence(record)
+        results.append(record)
 
-    pd.DataFrame(cleaned).to_json(output_file, orient="records", indent=2)
+    pd.DataFrame(results).to_json(output_json, orient="records", indent=2)
 
 if __name__ == "__main__":
-    clean_data("raw_technicians.csv", "clean_technicians.json")
+    run_pipeline("raw_technicians.csv", "clean_technicians.json")
