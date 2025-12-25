@@ -1,1 +1,38 @@
-{}
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Technician",
+  "type": "object",
+  "properties": {
+    "technician_id": { "type": "string" },
+    "full_name": { "type": "string" },
+    "service_category": { "type": "string" },
+    "skills": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "country_code": { "type": "string" },
+    "city": { "type": "string" },
+    "address": { "type": "string" },
+    "latitude": { "type": ["number", "null"] },
+    "longitude": { "type": ["number", "null"] },
+    "contact_masked": { "type": ["string", "null"] },
+    "contact_hash": { "type": ["string", "null"] },
+    "languages": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "availability": { "type": "string" },
+    "experience_years": { "type": ["integer", "null"] },
+    "source_type": { "type": "string" },
+    "confidence_score": { "type": "number" },
+    "created_at": { "type": "string" },
+    "updated_at": { "type": "string" }
+  },
+  "required": [
+    "technician_id",
+    "service_category",
+    "country_code",
+    "confidence_score",
+    "created_at"
+  ]
+}
