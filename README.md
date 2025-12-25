@@ -23,3 +23,5 @@ This project builds a compliant, scalable API that allows platforms to discover 
 
 ## License
 All rights reserved. Commercial use only.
+### Development Phase
+Phase 1 – Data Foundation (In Progress)
