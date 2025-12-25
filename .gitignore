@@ -1,17 +1,52 @@
+# ----------------------------
 # Python
+# ----------------------------
 __pycache__/
 *.pyc
 *.pyo
 *.pyd
 
-# Virtual environment
+# Virtual environments
 venv/
-.env
+env/
+.venv/
 
+# ----------------------------
+# Environment / Secrets
+# ----------------------------
+.env              # Local environment variables (real keys)
+.env.*            # Any variant of env files
+*.key             # Any key files
+*.pem             # Certificates or keys
+
+# ----------------------------
 # Data files (DO NOT COMMIT REAL DATA)
+# ----------------------------
 *.csv
 *.json
+*.db
+*.sqlite3
+*.log
 
-# OS
+# ----------------------------
+# IDE / Editor / OS
+# ----------------------------
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+
+# macOS
 .DS_Store
+
+# Windows
 Thumbs.db
+desktop.ini
+
+# ----------------------------
+# Deployment / build
+# ----------------------------
+__pycache__/
+*.egg-info/
+dist/
+build/
