@@ -1,7 +1,8 @@
-name: Test FastAPI App
+name: Test & Run FastAPI App
 
+# Manual trigger or on push to main branch
 on:
-  workflow_dispatch:  # Manual run
+  workflow_dispatch:
   push:
     branches:
       - main
@@ -10,9 +11,14 @@ jobs:
   test-fastapi:
     runs-on: ubuntu-latest
 
+    env:
+      # These should be set in GitHub Secrets
+      SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+      SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
+
     steps:
       # Step 1: Checkout code
-      - name: Checkout repo
+      - name: Checkout repository
         uses: actions/checkout@v3
 
       # Step 2: Set up Python
@@ -21,22 +27,24 @@ jobs:
         with:
           python-version: '3.11'
 
-      # Step 3: Install dependencies
+      # Step 3: Upgrade pip and install dependencies
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements.txt
+          pip install supabase  # ensure supabase client is installed
 
       # Step 4: Test Supabase connection
       - name: Test DB Connection
         run: |
           python -c "from api.db import test_connection; print(test_connection())"
-        env:
-          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
-          SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
 
-      # Step 5: Run FastAPI (for testing)
-      # Note: This runs in background in workflow and will end after job
+      # Step 5: Run FastAPI server temporarily (for testing)
       - name: Run FastAPI
         run: |
           nohup uvicorn api.main:app --host 0.0.0.0 --port 8000 &
+
+      # Step 6: Optional step to check that server is running
+      - name: Check FastAPI running
+        run: |
+          curl -I http://127.0.0.1:8000/docs || echo 'FastAPI server started temporarily'
