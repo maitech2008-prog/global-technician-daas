@@ -1,0 +1,21 @@
+name: Validate Repository Structure
+
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Validate schema file exists
+        run: test -f schemas/technician_v1.json
+
+      - name: Validate pipeline file exists
+        run: test -f data_pipeline/clean_pipeline.py
+
+      - name: Validate requirements file exists
+        run: test -f requirements.txt
